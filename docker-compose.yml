@@ -1,0 +1,41 @@
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: panaurum-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: panaurum_db
+      MYSQL_USER: panaurum
+      MYSQL_PASSWORD: Naranco.24
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d/
+      - mysql_data:/var/lib/mysql
+    networks:
+      - panaurum-network
+
+  app:
+    build: .
+    container_name: panaurum-app
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/panaurum_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: panaurum
+      SPRING_DATASOURCE_PASSWORD: Naranco.24
+    ports:
+      - "8000:8080"
+    networks:
+      - panaurum-network
+    volumes:
+      - ./images:/app/images # Montar imágenes dentro del contenedor
+
+volumes:
+  mysql_data:
+
+networks:
+  panaurum-network:
